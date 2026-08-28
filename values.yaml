@@ -27,6 +27,11 @@ global:
     encryption_key: '' # openssl rand -base64 32
     # Shared HMAC secret the relay uses to validate peer tokens.
     auth_secret: '' # openssl rand -base64 32
+    # Name of an existing Secret containing the whole config.yaml under a
+    # `config.yaml` key. When set, the chart does not render its own config
+    # Secret and the values above are ignored. Lets the config be managed by
+    # SOPS, External Secrets, Vault or sealed-secrets instead of plain values.
+    existingConfigSecret: ''
 
   persistence:
     enabled: true
