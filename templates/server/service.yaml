@@ -16,7 +16,7 @@ spec:
     - name: stun
       targetPort: stun
       protocol: UDP
-      port: {{ .Values.global.server.stun_port }}
+      port: {{ include "netbird.stunPort" . }}
   selector:
     {{- include "netbird.selectorLabels" . | nindent 4 }}
     netbird-app: {{ include "netbird.fullname" . }}-server

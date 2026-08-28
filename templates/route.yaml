@@ -99,7 +99,7 @@ spec:
         - group: ''
           kind: Service
           name: {{ $fullName }}-server
-          port: {{ $.Values.global.server.stun_port }}
+          port: {{ include "netbird.stunPort" $ }}
 {{- end }}
 
 
