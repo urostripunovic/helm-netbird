@@ -126,6 +126,9 @@ dashboard:
   tolerations: []
   affinity: {}
   replicaCount: 1
+  # Pod-level and container-level securityContext, empty by default.
+  podSecurityContext: {}
+  securityContext: {}
   resources: {}
   livenessProbe:
   readinessProbe:
@@ -147,6 +150,9 @@ server:
   tolerations: []
   affinity: {}
   replicaCount: 1
+  # Pod-level and container-level securityContext, empty by default.
+  podSecurityContext: {}
+  securityContext: {}
   resources: {}
   livenessProbe:
   readinessProbe:
