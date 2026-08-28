@@ -34,6 +34,8 @@ global:
 
   persistence:
     enabled: true
+    # Set this explicitly under GitOps: the fallback that reuses an existing
+    # PVC's class relies on `lookup`, which is inert under `helm template`.
     storageClass:
     volumeName: 'data'
     existingClaim: ''
