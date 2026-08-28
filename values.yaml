@@ -120,7 +120,7 @@ dashboard:
   extra_env: []
   image:
     repository: netbirdio/dashboard
-    tag: v2.33.0
+    tag: v2.39.0
     pullPolicy: IfNotPresent
   annotations: {}
   labels: {}
@@ -144,7 +144,7 @@ dashboard:
 server:
   image:
     repository: netbirdio/netbird-server
-    tag: 0.66.0
+    tag: 0.77.1
     pullPolicy: IfNotPresent
   annotations: {}
   labels: {}
