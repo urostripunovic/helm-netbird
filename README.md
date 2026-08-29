@@ -23,9 +23,9 @@ To use the minimal setup, you will require
    global:
      domain: 
        global: netbird.example.com
-       vpn: myvpn.example.com  # The domain to be used for VPN clients.  Will default to global domain if not set.
      server:
        encryption_key: ''  # `openssl rand -base64 32`
+       auth_secret: ''     # `openssl rand -base64 32`
      route:
        enabled: true
        vendor: 'envoy'  # Will automatically set timeoutes.  If not using envoy, you may have to adjust timeouts manually.
@@ -60,15 +60,34 @@ To use the minimal setup, you will require
 |-----------------------------------|------------------------------------------------------------------------------------------------------|--------------------------|
 | global.namespace                  | Namespace for Netbird                                                                                | `'netbird'`              |
 | global.domain.global              | Domain name used for access (e.g. netbird.example.com)                                               | `''`                     |
-| global.domain.vpn                 | Domain name used for peer overlay network (eg peer1.netbird-vpn.example.com)                         | `<global.domain.global>` |
 | global.dashboard.port             | Dashboard HTTP port                                                                                  | `80`                     |
 | global.server.port                | Server HTTP port                                                                                     | `80`                     |
 | global.server.stun_port           | Server STUN port                                                                                     | `3478`                   |
+| global.server.stun.enabled        | Advertise a locally-served STUN port in the config                                                   | `true`                   |
+| global.server.stun.port           | Server STUN port.  Overrides `stun_port` when set.                                                   | `<global.server.stun_port>` |
+| global.server.stun.external       | External STUN servers to advertise to peers, eg `['stun:stun.l.google.com:19302']`                   | `[]`                     |
+| global.server.encryption_key      | Data store encryption key.  Required.                                                                | `''`                     |
+| global.server.auth_secret         | Shared HMAC secret the relay uses to validate peer tokens.  Required.                                | `''`                     |
+| global.server.existingConfigSecret | Name of a Secret holding the whole `config.yaml`.  Suppresses the chart's own config Secret.        | `''`                     |
 | global.route.enabled              | Enable GatewayAPI access                                                                             | `false`                  |
 | global.route.vendor               | Type of GatewayAPI installed, eg. `envoy`.  Automatically installs traffic policies to fix timeouts. | `''`                     |
 | global.route.parentRefs           | The gateway parentRefs                                                                               | `[]`                     |
 | global.route.stunParentRefs       | STUN likely uses a different port in the gateway, so you can specify a different parent ref here     | `[]`                     |
+| global.route.apiTimeout           | Timeout for `/api` and `/oauth2`.  Streaming paths always use `0s`.                                  | `'3600s'`                |
 | global.route.annotations          | Annotations to apply to GatewayAPI resources                                                         | `{}`                     |
+| global.route.dashboardAnnotations | Merged over `annotations` for the dashboard route alone                                              | `{}`                     |
+| global.route.serverAnnotations    | Merged over `annotations` for the server routes alone                                                | `{}`                     |
+| global.route.stunAnnotations      | Merged over `annotations` for the STUN route alone                                                   | `{}`                     |
+| global.auth.issuerUrl             | Issuer the server validates tokens against.  Falls back to `authority`.                              | `<global.auth.authority>` |
+| global.auth.authority             | OIDC provider the dashboard talks to                                                                 | `https://<domain.global>/oauth2` |
+| global.auth.clientId              | OIDC client id                                                                                       | `netbird-dashboard`      |
+| global.auth.clientSecret          | OIDC client secret.  Prefer `existingSecret`.                                                        | `''`                     |
+| global.auth.existingSecret        | Secret holding the client credentials under the keys `clientId`/`clientSecret`                       | `''`                     |
+| global.auth.audience              | OIDC audience                                                                                        | `netbird-dashboard`      |
+| global.auth.supportedScopes       | OIDC scopes                                                                                          | `openid profile email groups` |
+| global.auth.redirectURI           | OIDC redirect URI                                                                                    | `/nb-auth`               |
+| global.auth.silentRedirectURI     | OIDC silent redirect URI                                                                             | `/nb-silent-auth`        |
+| global.auth.useAuth0              | Use Auth0                                                                                            | `false`                  |
 | global.serviceAccount.create      | Create service account                                                                               | `true`                   |
 | global.serviceAccount.automount   | Auto-mount service account                                                                           | `true`                   |
 | global.serviceAccount.annotations | Service account annotations                                                                          | `{}`                     |
@@ -79,7 +98,7 @@ To use the minimal setup, you will require
 | config                             | description                | default                      |
 |------------------------------------|----------------------------|------------------------------|
 | dashboard.image.repository         | Dashboard image repository | `'netbirdio/dashboard'`      |
-| dashboard.image.tag                | Dashboard image tag        | `'v2.33.0'`                  |
+| dashboard.image.tag                | Dashboard image tag        | `'v2.39.0'`                  |
 | dashboard.image.pullPolicy         | Image pull policy          | `'IfNotPresent'`             |
 | dashboard.annotations              | Pod annotations            | `{}`                         |
 | dashboard.labels                   | Pod labels                 | `{}`                         |
@@ -87,15 +106,18 @@ To use the minimal setup, you will require
 | dashboard.tolerations              | Tolerations array          | `[]`                         |
 | dashboard.affinity                 | Affinity rules             | `{}`                         |
 | dashboard.replicaCount             | Replica count              | `1`                          |
+| dashboard.podSecurityContext       | Pod securityContext        | `{}`                         |
+| dashboard.securityContext          | Container securityContext  | `{}`                         |
 | dashboard.resources                | Resource limits/requests   | `{}`                         |
 | dashboard.livenessProbe            | Liveness probe settings    |                              |
 | dashboard.readinessProbe           | Readiness probe settings   |                              |
 | dashboard.service.type             | Dashboard service type     | `'ClusterIP'`                |
+| dashboard.extra_env                | Additional env vars        | `[]`                         |
 | dashboard.extra_volumes            | Additional volumes         | `[]`                         |
 | dashboard.extra_volumeMounts       | Additional volume mounts   | `[]`                         |
 | **Server**                         |                            |                              |
 | server.image.repository            | Server image repository    | `'netbirdio/netbird-server'` |
-| server.image.tag                   | Server image tag           | `'0.66.0'`                   |
+| server.image.tag                   | Server image tag           | `'0.77.1'`                   |
 | server.image.pullPolicy            | Image pull policy          | `'IfNotPresent'`             |
 | server.annotations                 | Pod annotations            | `{}`                         |
 | server.labels                      | Pod labels                 | `{}`                         |
@@ -103,6 +125,8 @@ To use the minimal setup, you will require
 | server.tolerations                 | Tolerations                | `[]`                         |
 | server.affinity                    | Affinity rules             | `{}`                         |
 | server.replicaCount                | Replica count              | `1`                          |
+| server.podSecurityContext          | Pod securityContext        | `{}`                         |
+| server.securityContext             | Container securityContext  | `{}`                         |
 | server.resources                   | Resource limits/requests   | `{}`                         |
 | server.livenessProbe               | Liveness probe settings    |                              |
 | server.readinessProbe              | Readiness probe settings   |                              |
